@@ -1,0 +1,15 @@
+# Environment
+.env
+node_modules/
+dist/
+__pycache__/
+.venv/
+.DS_Store
+.idea/
+
+# Documentation
+docs/STEPS.md
+docs/LEARNING_LOG.md
+
+# Claude
+.claude/settings.local.json
