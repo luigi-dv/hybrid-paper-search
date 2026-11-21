@@ -18,6 +18,10 @@ class EmbeddingService:
         self._model = model
 
     def embed(self, texts: list[str], is_query: bool = False) -> list[list[float]]:
-        # TODO: decide where the query prefix is added.
-
+        """
+        The query prefix is added here, in the service, so every client gets
+        the same behavior and none of them needs to know the model's rule.
+        """
+        if is_query:
+            texts = [self._model.query_prefix + text for text in texts]
         return self._model.encode(texts)
