@@ -9,7 +9,6 @@ __pycache__/
 
 # Documentation
 docs/STEPS.md
-docs/LEARNING_LOG.md
 
 # Claude
 .claude/settings.local.json
