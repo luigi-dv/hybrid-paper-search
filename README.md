@@ -15,8 +15,8 @@ on PostgreSQL with a small Python service for the machine learning part.
 | Schema with full-text and vector indexes    | Done         |
 | Embedding service (Python, FastAPI)         | Done         |
 | Loader: arXiv → embeddings → PostgreSQL     | Done         |
-| Search queries written and checked by hand  | In progress  |
-| API with `/search/keyword` and `/search/vector` (Fastify) | Planned |
+| Search queries written and checked by hand  | Done         |
+| API with `/search/keyword` and `/search/vector` (Fastify) | Done    |
 | Hybrid search (Reciprocal Rank Fusion) and reranking      | Planned |
 
 ## How it works
@@ -88,14 +88,30 @@ time: papers that are already loaded are skipped.
 docker compose exec db psql -U app -d hps -c "SELECT count(*) FROM documents;"
 ```
 
+**5. Start the API**
+
+```bash
+npm run dev
+curl -s 'localhost:3000/search/keyword?q=retrieval%20augmented%20generation'
+curl -s 'localhost:3000/search/vector?q=how%20to%20evaluate%20search%20quality'
+```
+
+Both routes take `q` (required) and `limit` (1 to 50, default 10), and return
+`{ "results": [{ "arxivId", "title", "score" }] }`. If the ML service is down,
+the vector route answers 503 and the keyword route keeps working.
+
 ## Project structure
 
 ```
 docker-compose.yml       PostgreSQL with pgvector
 migrations/              SQL schema
 queries/                 search queries written by hand
-src/                     loader (and later the API)
-  load.ts                entry script
+src/                     loader and API
+  load.ts                loader entry script
+  server.ts              API entry point
+  app.ts                 builds the Fastify app (no side effects, so it can be tested)
+  plugins/               the database pool as a Fastify plugin
+  routes/                the search routes and their JSON schemas
   constants/             configuration values, shared objects, SQL statements
   helpers/               small pure functions
   services/              one folder per external system
@@ -140,8 +156,6 @@ slow, and an open transaction should not hold a database connection while it wai
 
 ## Roadmap
 
-- Finish the keyword and vector queries and read their query plans
-- Fastify API with `/search/keyword` and `/search/vector`
 - Hybrid search: merge both rankings with Reciprocal Rank Fusion
 - A cross-encoder to rerank the top results
 - Background jobs with pg-boss, to load and embed papers outside the request
