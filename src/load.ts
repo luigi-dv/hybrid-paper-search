@@ -1,31 +1,9 @@
-import { BATCH_SIZE } from "@/constants";
+import {BATCH_SIZE, INSERT_DOCUMENT_SQL, INSERT_CHUNK_SQL} from "@/constants";
 import { toVectorLiteral } from "@/helpers";
 import { pool } from "@/services/database";
 import { embed } from "@/services/embedding";
 import { fetchPapers } from "@/services/papers";
 import type { Paper } from "@/types";
-
-export const INSERT_DOCUMENT_SQL = `
-    INSERT INTO documents (
-        arxiv_id,
-        title,
-        authors,
-        published_date
-    )
-    VALUES ($1, $2, $3, $4)
-        ON CONFLICT (arxiv_id) DO NOTHING
-    RETURNING id;
-`;
-
-const INSERT_CHUNK_SQL = `
-    INSERT INTO chunks (
-        document_id,
-        content,
-        embedding,
-        position
-    )
-    VALUES ($1, $2, $3::vector, 0)
-`;
 
 async function main(): Promise<void> {
     const papers = await fetchPapers();
@@ -42,9 +20,6 @@ async function main(): Promise<void> {
 
 /** Loads one batch in one transaction. Returns how many papers were new. */
 async function loadBatch(batch: Paper[]): Promise<number> {
-    if (!INSERT_DOCUMENT_SQL.trim() || !INSERT_CHUNK_SQL.trim()) {
-        throw new Error("Write the two SQL statements at the top of src/load.ts first");
-    }
 
     // Steps 1 and 2 happen BEFORE the transaction: the HTTP call is slow, and
     // a transaction should not hold a connection open while it waits.
