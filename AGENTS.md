@@ -40,8 +40,9 @@ decision and flags gaps. Agreed decisions go into `docs/DESIGN.md`: the decision
 considered and the trade-off, in the author's words.
 
 ## Commands
-- Start the database: `docker compose up -d db`
-- Open psql: `docker compose exec db psql -U app -d research`
+- Start everything in Docker: `docker compose up -d --build`, then `docker compose run --rm loader`
+- Start only the database: `docker compose up -d db`
+- Open psql: `docker compose exec db psql -U app -d hps`
 - ML service: `cd ml && uvicorn main:app --port 8001`
 - API (dev): `npm run dev`
 - Load data: `npm run load`

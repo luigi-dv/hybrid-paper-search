@@ -46,9 +46,25 @@ on PostgreSQL with a small Python service for the machine learning part.
 - **Loader and API:** Node.js, TypeScript, `pg`, `tsx`
 - **ML service:** Python 3.12, FastAPI, sentence-transformers, model `BAAI/bge-small-en-v1.5` (384 dimensions)
 
-## Run it
+## Run it with Docker
 
-Requirements: Docker, Node.js 22 or newer, Python 3.12.
+Requirements: Docker only.
+
+```bash
+cp .env.example .env                 # then set POSTGRES_PASSWORD
+docker compose up -d --build         # database, ML service and API
+docker compose run --rm loader       # loads about 300 papers
+curl -s 'localhost:3000/search/vector?q=how%20to%20evaluate%20search%20quality'
+```
+
+The first build takes a few minutes, and the first start downloads the model
+(about 130 MB). A new database applies `migrations/` by itself.
+
+## Run it for development
+
+Requirements: Docker, Node.js 22 or newer, Python 3.12. Here only the database
+runs in Docker, so do not start the `ml` and `api` containers at the same time:
+they use the same ports.
 
 **1. Database**
 
@@ -103,7 +119,8 @@ the vector route answers 503 and the keyword route keeps working.
 ## Project structure
 
 ```
-docker-compose.yml       PostgreSQL with pgvector
+docker-compose.yml       database, ML service, API and loader
+Dockerfile               image for the API and the loader
 migrations/              SQL schema
 queries/                 search queries written by hand
 src/                     loader and API
@@ -119,7 +136,7 @@ src/                     loader and API
     embedding/           the ML service
     database/            the PostgreSQL pool
   types/
-ml/                      embedding service (Python, FastAPI)
+ml/                      embedding service (Python, FastAPI), with its own Dockerfile
 ```
 
 ## Design decisions
