@@ -7,6 +7,10 @@ search). The next goal is to merge both results into one ranking.
 I am building this project to learn, and to show how I build a TypeScript backend
 on PostgreSQL with a small Python service for the machine learning part.
 
+I keep a [learning log](docs/LEARNING_LOG.md) of every step: what I built, the
+decisions I took and why, what surprised me, and which parts I wrote myself and
+which parts an AI assistant wrote.
+
 ## Status
 
 | Part                                        | State        |
